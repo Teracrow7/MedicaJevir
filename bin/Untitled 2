@@ -1,0 +1,53 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class InsertSpecificDateTimeExample {
+    public static void main(String[] args) {
+        // Database connection parameters
+        String url = "jdbc:mysql://localhost:3306/mydatabase";
+        String username = "yourUsername";
+        String password = "yourPassword";
+
+        // Create a SimpleDateFormat object to parse the date string
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        // Define the datetime string you want to insert
+        String datetimeString = "2023-12-31 15:30:00";
+
+        try {
+            // Parse the datetime string to a Date object
+            Date parsedDate = dateFormat.parse(datetimeString);
+
+            // Convert the parsed Date to a Timestamp
+            Timestamp datetimeToInsert = new Timestamp(parsedDate.getTime());
+
+            // Establish the database connection
+            try (Connection connection = DriverManager.getConnection(url, username, password)) {
+                String sql = "INSERT INTO my_table (my_datetime) VALUES (?)";
+
+                try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                    preparedStatement.setTimestamp(1, datetimeToInsert);
+
+                    // Execute the INSERT statement
+                    int rowsAffected = preparedStatement.executeUpdate();
+
+                    if (rowsAffected > 0) {
+                        System.out.println("Datetime data inserted successfully.");
+                    } else {
+                        System.out.println("Failed to insert datetime data.");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+    }
+}
